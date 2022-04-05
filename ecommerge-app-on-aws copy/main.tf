@@ -12,22 +12,13 @@ provider "aws" {
   region  = "ap-south-1"
 }
 
-variable "vpcCidr" {
-  type = string
-  default = "10.10.0.0/16"
-}
-
 resource "aws_vpc" "ecommerce-vpc" {
-  cidr_block = "${var.vpcCidr}"
+  cidr_block = "10.10.0.0/16"
 }
 
-variable "subnet1aCidr" {
-  type = string
-  default = "10.10.1.0/24"
-}
 resource "aws_subnet" "subnet_1a" {
   vpc_id     = aws_vpc.ecommerce-vpc.id
-  cidr_block = "${var.subnet1aCidr}"
+  cidr_block = "10.10.1.0/24"
   availability_zone = "ap-south-1a"
   map_public_ip_on_launch = "true"
 
@@ -36,13 +27,9 @@ resource "aws_subnet" "subnet_1a" {
   }
 }
 
-variable "subnet1bCidr" {
-  type = string
-  default = "10.10.2.0/24"  
-}
 resource "aws_subnet" "subnet_1b" {
   vpc_id     = aws_vpc.ecommerce-vpc.id
-  cidr_block = "${var.subnet1bCidr}"
+  cidr_block = "10.10.2.0/24"
   availability_zone = "ap-south-1b"
   map_public_ip_on_launch = "true"
   tags = {
@@ -50,15 +37,9 @@ resource "aws_subnet" "subnet_1b" {
   }
 }
 
-
-variable "subnet1cCidr" {
-  type = string
-  default = "10.10.3.0/24"  
-}
-
 resource "aws_subnet" "subnet_1c" {
   vpc_id     = aws_vpc.ecommerce-vpc.id
-  cidr_block = "${var.subnet1cCidr}"
+  cidr_block = "10.10.3.0/24"
   availability_zone = "ap-south-1c"
   tags = {
     Name = "subnet-1c"
@@ -97,32 +78,17 @@ resource "aws_route_table_association" "associate-1b-rt" {
   route_table_id = aws_route_table.rt_public.id
 }
 
-variable "imageId" {
-  type = string
-  default = "ami-0cfe39d5e0c8e331a"
-}
-
-variable "instanceType" {
-  type = string
-  default = "t3.micro"
-}
-
-variable "machineCount" {
-  type = string
-  default = 4
-}
-
 resource "aws_instance" "web001" {
-  count = "${var.machineCount}"
-  ami           = "${var.imageId}"
-  instance_type = "${var.instanceType}"
+  ami           = "ami-0cfe39d5e0c8e331a"
+  instance_type = "t3.micro"
   subnet_id = aws_subnet.subnet_1a.id
   vpc_security_group_ids = [ aws_security_group.webservers.id ]
   key_name = "mar22"
   tags = {
-    Name = "Web-${count.index + 1}"
+    Name = "Web001"
   }
 }
+
 
 resource "aws_instance" "web002" {
   ami           = "ami-0cfe39d5e0c8e331a"
@@ -157,11 +123,6 @@ resource "aws_security_group" "aws_default_sg" {
   }
 }
 
-variable "allowSshAccessCidr" {
-  type = string
-  default = "0.0.0.0/0"
-}
-
 resource "aws_security_group" "webservers" {
   name        = "webservers-80"
   description = "Allow HTTP inbound traffic"
@@ -179,7 +140,7 @@ resource "aws_security_group" "webservers" {
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
-    cidr_blocks      = ["${var.allowSshAccessCidr}"]
+    cidr_blocks      = ["0.0.0.0/0"]
   }
   egress {
     from_port        = 0
@@ -201,9 +162,8 @@ resource "aws_lb_target_group" "mywebservergroup" {
 }
 
 resource "aws_lb_target_group_attachment" "attach_web001_tg" {
-  count = length(aws_instance.web001)
   target_group_arn = aws_lb_target_group.mywebservergroup.arn
-  target_id        = aws_instance.web001[count.index].id
+  target_id        = aws_instance.web001.id
   port             = 80
 }
 
@@ -218,6 +178,29 @@ resource "aws_lb_target_group_attachment" "attach_web003_tg" {
   target_id        = aws_instance.web003.id
   port             = 80
 }
+
+resource "aws_lb" "lb-webservers" {
+  name               = "lb-webservers"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.lb_webservers.id]
+  subnets            = [ aws_subnet.subnet_1a.id, aws_subnet.subnet_1b.id ]
+  tags = {
+    Environment = "production"
+  }
+}
+
+resource "aws_lb_listener" "front_end_80" {
+  load_balancer_arn = aws_lb.lb-webservers.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.mywebservergroup.arn
+  }
+}
+
 
 
 resource "aws_security_group" "lb_webservers" {
@@ -250,4 +233,50 @@ resource "aws_launch_configuration" "ecommerce-lc" {
   instance_type = "t2.micro"
   security_groups = [ aws_security_group.webservers.id ]
   key_name = "mar22"
+}
+
+variable "asgMin" {
+  type = string
+  default = "1"
+}
+
+variable "asgMax" {
+  type = string
+  default = "5"
+}
+
+variable "asgDesired" {
+  type = string
+  default = "2"
+}
+
+resource "aws_autoscaling_group" "ecommerce-asg" {
+  name                      = "ecommerce-asg"
+  max_size                  = "${var.asgMax}"
+  min_size                  = "${var.asgMin}"
+  desired_capacity          = "${var.asgDesired}"
+  force_delete              = true
+  launch_configuration      = aws_launch_configuration.ecommerce-lc.name
+  vpc_zone_identifier       = [aws_subnet.subnet_1a.id, aws_subnet.subnet_1b.id]
+
+  tag {
+    key                 = "foo"
+    value               = "bar"
+    propagate_at_launch = true
+  }
+
+  timeouts {
+    delete = "15m"
+  }
+
+  tag {
+    key                 = "lorem"
+    value               = "ipsum"
+    propagate_at_launch = false
+  }
+}
+
+resource "aws_autoscaling_attachment" "asg_attachment_bar" {
+  autoscaling_group_name = aws_autoscaling_group.ecommerce-asg.id
+  alb_target_group_arn   = aws_lb_target_group.mywebservergroup.arn
 }
