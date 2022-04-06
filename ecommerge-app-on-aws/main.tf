@@ -1,4 +1,9 @@
 terraform {
+  backend "s3" {
+    bucket = "coit-terraform-statebucket"
+    key    = "ecommerce.tfstate"
+    region = "ap-south-1"
+  }
   required_providers {
       aws = {
           source = "hashicorp/aws"
