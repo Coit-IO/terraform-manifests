@@ -126,6 +126,7 @@ resource "aws_instance" "web001" {
   key_name = "mar22"
   tags = {
     Name = "Web-${count.index + 1}"
+    type = webserver
   }
 }
 
@@ -137,6 +138,7 @@ resource "aws_instance" "web002" {
   key_name = "mar22"
   tags = {
     Name = "Web002"
+    type = webserver
   }
 }
 
@@ -148,6 +150,7 @@ resource "aws_instance" "web003" {
   key_name = "mar22"
   tags = {
     Name = "Web003"
+    type = webserver
   }
 }
 
