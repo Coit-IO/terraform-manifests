@@ -1,0 +1,7 @@
+vpcCidr = "10.10.0.0/16"
+subnet1aCidr = "10.10.1.0/24"
+subnet1bCidr = "10.10.2.0/24"
+subnet1cCidr = "10.10.4.0/24"
+imageId = "ami-0cfe39d5e0c8e331a"
+instanceType = "t3.large"
+allowSshAccessCidr = "0.0.0.0/0"
