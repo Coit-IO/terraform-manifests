@@ -15,9 +15,9 @@ provider "aws" {
 }
 
 resource "aws_instance" "app_server" {
-  ami           = "ami-04b21e29a03aa7701"
+  ami           = "ami-0f5ee92e2d63afc18"
   instance_type = "t2.micro"
-
+  key_name      = "basilmac"
   tags = {
     Name = "Machine1FromTerraform"
     Type = "AppServer"
