@@ -1,0 +1,14 @@
+.DS_Store
+ecommerge-app-on-aws/.terraform/terraform.tfstate
+ecommerge-app-on-aws/.terraform/providers/registry.terraform.io/hashicorp/aws/4.5.0/darwin_amd64/terraform-provider-aws_v4.5.0_x5
+learn-terraform-aws-instance/terraform.tfstate
+learn-terraform-aws-instance/.terraform/providers/registry.terraform.io/hashicorp/aws/4.5.0/darwin_amd64/terraform-provider-aws_v4.5.0_x5
+simple-syntax/terraform.tfstate
+simple-syntax/terraform.tfstate.backup
+simple-syntax/.terraform/providers/registry.terraform.io/hashicorp/aws/4.5.0/darwin_amd64/terraform-provider-aws_v4.5.0_x5
+simple-syntax/.terraform/providers/registry.terraform.io/hashicorp/aws/5.0.0/darwin_amd64/terraform-provider-aws_v5.0.0_x5
+simple-syntax/ggg/.terraform/providers/registry.terraform.io/hashicorp/google/4.67.0/darwin_amd64/terraform-provider-google_v4.67.0_x5
+simple-syntax/modules/http-instances/terraform.tfstate
+simple-syntax/modules/http-instances/terraform.tfstate.backup
+simple-syntax/modules/http-instances/.terraform/providers/registry.terraform.io/hashicorp/aws/4.5.0/darwin_amd64/terraform-provider-aws_v4.5.0_x5
+learn-terraform-aws-instance/terraform.tfstate
