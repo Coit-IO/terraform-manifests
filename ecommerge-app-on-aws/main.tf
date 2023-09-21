@@ -114,7 +114,7 @@ variable "instanceType" {
 
 variable "machineCount" {
   type = string
-  default = 4
+  default = 1
 }
 
 resource "aws_instance" "web001" {
@@ -124,10 +124,6 @@ resource "aws_instance" "web001" {
   subnet_id = aws_subnet.subnet_1a.id
   vpc_security_group_ids = [ aws_security_group.webservers.id ]
   key_name = "mar22"
-  tags = {
-    Name = "Web-${count.index + 1}"
-    type = webserver
-  }
 }
 
 resource "aws_instance" "web002" {
@@ -136,10 +132,6 @@ resource "aws_instance" "web002" {
   subnet_id = aws_subnet.subnet_1b.id
   vpc_security_group_ids = [ aws_security_group.webservers.id ]
   key_name = "mar22"
-  tags = {
-    Name = "Web002"
-    type = webserver
-  }
 }
 
 resource "aws_instance" "web003" {
@@ -148,10 +140,6 @@ resource "aws_instance" "web003" {
   subnet_id = aws_subnet.subnet_1b.id
   vpc_security_group_ids = [ aws_security_group.webservers.id ]
   key_name = "mar22"
-  tags = {
-    Name = "Web003"
-    type = webserver
-  }
 }
 
 resource "aws_security_group" "aws_default_sg" {
