@@ -80,7 +80,7 @@ resource "aws_route_table_association" "associate-1b-rt" {
 
 resource "aws_instance" "web001" {
   ami           = "ami-0cfe39d5e0c8e331a"
-  instance_type = "t3.micro"
+  instance_type = "${var.machineSize}"
   subnet_id = aws_subnet.subnet_1a.id
   vpc_security_group_ids = [ aws_security_group.webservers.id ]
   key_name = "mar22"
@@ -89,10 +89,9 @@ resource "aws_instance" "web001" {
   }
 }
 
-
 resource "aws_instance" "web002" {
   ami           = "ami-0cfe39d5e0c8e331a"
-  instance_type = "t2.micro"
+  instance_type = "${var.machineSize}"
   subnet_id = aws_subnet.subnet_1b.id
   vpc_security_group_ids = [ aws_security_group.webservers.id ]
   key_name = "mar22"
@@ -103,7 +102,7 @@ resource "aws_instance" "web002" {
 
 resource "aws_instance" "web003" {
   ami           = "ami-0cfe39d5e0c8e331a"
-  instance_type = "t2.micro"
+  instance_type = "${var.machineSize}"
   subnet_id = aws_subnet.subnet_1b.id
   vpc_security_group_ids = [ aws_security_group.webservers.id ]
   key_name = "mar22"
@@ -201,8 +200,6 @@ resource "aws_lb_listener" "front_end_80" {
   }
 }
 
-
-
 resource "aws_security_group" "lb_webservers" {
   name        = "lb-webservers-80"
   description = "Allow HTTP inbound traffic"
@@ -230,9 +227,9 @@ resource "aws_security_group" "lb_webservers" {
 resource "aws_launch_configuration" "ecommerce-lc" {
   name          = "ecommerce-lc"
   image_id      = "ami-0cfe39d5e0c8e331a"
-  instance_type = "t2.micro"
+  instance_type = "${var.machineSize}"
   security_groups = [ aws_security_group.webservers.id ]
-  key_name = "mar22"
+  key_name = "basilmac"
 }
 
 variable "asgMin" {
@@ -249,6 +246,12 @@ variable "asgDesired" {
   type = string
   default = "2"
 }
+
+variable "machineSize" {
+  type = string
+  default = "t2.micro"
+}
+
 
 resource "aws_autoscaling_group" "ecommerce-asg" {
   name                      = "ecommerce-asg"
